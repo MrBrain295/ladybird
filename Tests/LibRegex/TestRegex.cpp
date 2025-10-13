@@ -1386,12 +1386,15 @@ TEST_CASE(deep_recursion_limit)
     // Issue #4776: Patterns like (||(||(||... caused stack overflow.
     
     // Create a deeply nested pattern that would previously overflow the stack
+    // We use 600 levels to exceed the MAX_RECURSION_DEPTH of 512
+    constexpr int DEEP_NESTING_LEVELS = 600;
+    
     StringBuilder pattern_builder;
-    for (int i = 0; i < 600; i++) {
+    for (int i = 0; i < DEEP_NESTING_LEVELS; i++) {
         pattern_builder.append("(||"sv);
     }
-    for (int i = 0; i < 600; i++) {
-        pattern_builder.append(')'sv);
+    for (int i = 0; i < DEEP_NESTING_LEVELS; i++) {
+        pattern_builder.append(')');
     }
     
     auto pattern = pattern_builder.to_byte_string();
