@@ -1379,3 +1379,27 @@ TEST_CASE(account_for_opcode_size_calculating_incoming_jump_edges)
         EXPECT_EQ(result.matches.first().view.to_byte_string(), "aa"sv);
     }
 }
+
+TEST_CASE(deep_recursion_limit)
+{
+    // Test that deeply nested regex patterns don't cause stack overflow.
+    // Issue #4776: Patterns like (||(||(||... caused stack overflow.
+    
+    // Create a deeply nested pattern that would previously overflow the stack
+    StringBuilder pattern_builder;
+    for (int i = 0; i < 600; i++) {
+        pattern_builder.append("(||"sv);
+    }
+    for (int i = 0; i < 600; i++) {
+        pattern_builder.append(')'sv);
+    }
+    
+    auto pattern = pattern_builder.to_byte_string();
+    Lexer lexer(pattern);
+    ECMA262 parser(lexer);
+    auto result = parser.parse();
+    
+    // The parser should return an error instead of crashing
+    EXPECT(result.error == regex::Error::ReachedMaxRecursion);
+}
+
