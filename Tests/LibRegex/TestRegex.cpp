@@ -1395,11 +1395,9 @@ TEST_CASE(deep_recursion_limit)
     }
     
     auto pattern = pattern_builder.to_byte_string();
-    Lexer lexer(pattern);
-    ECMA262 parser(lexer);
-    auto result = parser.parse();
+    Regex<ECMA262> re(pattern);
     
     // The parser should return an error instead of crashing
-    EXPECT(result.error == regex::Error::ReachedMaxRecursion);
+    EXPECT_EQ(re.parser_result.error, regex::Error::ReachedMaxRecursion);
 }
 
