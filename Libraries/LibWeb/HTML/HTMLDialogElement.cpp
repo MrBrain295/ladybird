@@ -46,9 +46,15 @@ void HTMLDialogElement::visit_edges(JS::Cell::Visitor& visitor)
     visitor.visit(m_previously_focused_element);
 }
 
+// https://html.spec.whatwg.org/multipage/interactive-elements.html#the-dialog-element:removing-steps
 void HTMLDialogElement::removed_from(Node* old_parent, Node& old_root)
 {
     HTMLElement::removed_from(old_parent, old_root);
+
+    // AD-HOC: When a dialog is removed from the document, clean up its state to ensure it doesn't
+    // interfere with close requests. See https://wpt.live/close-watcher/user-activation/y-dialog-disconnected.html
+    // This matches Chromium's behavior.
+    set_is_modal(false);
 
     // 1. If removedNode's close watcher is not null, then:
     if (m_close_watcher) {
@@ -62,6 +68,9 @@ void HTMLDialogElement::removed_from(Node* old_parent, Node& old_root)
     //    immediately given removedNode.
     if (document().top_layer_elements().contains(*this))
         document().remove_an_element_from_the_top_layer_immediately(*this);
+
+    // 3. Remove the dialog from the open dialogs list
+    document().open_dialogs_list().remove_first_matching([this](auto other) { return other == this; });
 }
 
 // https://html.spec.whatwg.org/multipage/interactive-elements.html#queue-a-dialog-toggle-event-task
