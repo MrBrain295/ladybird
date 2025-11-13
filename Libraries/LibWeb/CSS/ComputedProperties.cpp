@@ -1225,6 +1225,9 @@ Vector<TextDecorationLine> ComputedProperties::text_decoration_line() const
 {
     auto const& value = property(PropertyID::TextDecorationLine);
 
+    if (value.to_keyword() == Keyword::None)
+        return {};
+
     if (value.is_value_list()) {
         Vector<TextDecorationLine> lines;
         auto& values = value.as_value_list().values();
@@ -1234,14 +1237,7 @@ Vector<TextDecorationLine> ComputedProperties::text_decoration_line() const
         return lines;
     }
 
-    if (value.is_keyword()) {
-        if (value.to_keyword() == Keyword::None)
-            return {};
-        return { keyword_to_text_decoration_line(value.to_keyword()).release_value() };
-    }
-
-    dbgln("FIXME: Unsupported value for text-decoration-line: {}", value.to_string(SerializationMode::Normal));
-    return {};
+    VERIFY_NOT_REACHED();
 }
 
 TextDecorationStyle ComputedProperties::text_decoration_style() const
@@ -1658,14 +1654,14 @@ Gfx::ShapeFeatures ComputedProperties::font_features() const
 
     // https://www.w3.org/TR/css-fonts-3/#feature-precedence
 
-    // FIXME 1. Font features enabled by default, including features required for a given script.
+    // FIXME: 1. Font features enabled by default, including features required for a given script.
 
-    // FIXME 2. If the font is defined via an @font-face rule, the font features implied by the font-feature-settings descriptor in the @font-face rule.
+    // FIXME: 2. If the font is defined via an @font-face rule, the font features implied by the font-feature-settings descriptor in the @font-face rule.
 
     // 3. Font features implied by the value of the ‘font-variant’ property, the related ‘font-variant’ subproperties and any other CSS property that uses OpenType features (e.g. the ‘font-kerning’ property).
     merged_features.update(font_variant_features());
 
-    // FIXME 4. Feature settings determined by properties other than ‘font-variant’ or ‘font-feature-settings’. For example, setting a non-default value for the ‘letter-spacing’ property disables common ligatures.
+    // FIXME: 4. Feature settings determined by properties other than ‘font-variant’ or ‘font-feature-settings’. For example, setting a non-default value for the ‘letter-spacing’ property disables common ligatures.
 
     // 5. Font features implied by the value of ‘font-feature-settings’ property.
     merged_features.update(font_feature_settings());
