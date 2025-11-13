@@ -46,7 +46,6 @@ void HTMLDialogElement::visit_edges(JS::Cell::Visitor& visitor)
     visitor.visit(m_previously_focused_element);
 }
 
-// https://html.spec.whatwg.org/multipage/interactive-elements.html#the-dialog-element:removing-steps
 void HTMLDialogElement::removed_from(Node* old_parent, Node& old_root)
 {
     HTMLElement::removed_from(old_parent, old_root);
